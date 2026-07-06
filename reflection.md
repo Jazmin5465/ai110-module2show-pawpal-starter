@@ -2,10 +2,21 @@
 
 ## 1. System Design
 
+Some core actions that a user should be able to perform: Add pet information, add pet tasks, determine pet tasks priority, see tasks listed out
+
 **a. Initial design**
 
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
+
+I included the following classes: Owner, Pet, Task, and Scheduler
+
+Here are the following responsibilites:
+Owner - Attributes: name, availability, preferences; Methods: get_day_availability()
+Pet - Attributes: name, species, age; Methods: describe()
+Task - Attributes: description, duration, priority, category; Methods: is_high_priority(), estimate_time()
+Scheduler - Attributes: tasks, owner, pet, total_minutes; Methods: add_task(), remove_task(), generate_plan(), explain_plan()
+
 
 **b. Design changes**
 
