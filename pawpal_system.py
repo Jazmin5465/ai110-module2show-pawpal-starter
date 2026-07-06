@@ -5,7 +5,7 @@ See diagrams/uml_draft.mmd for the class design.
 """
 
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
 @dataclass
@@ -15,6 +15,8 @@ class Task:
     duration: int
     priority: str
     category: str
+    frequency: str = "once"
+    start_time: Optional[str] = None
 
     def is_high_priority(self) -> bool:
         """Check if this task has high priority."""
@@ -65,6 +67,14 @@ class Scheduler:
 
     def remove_task(self, task: Task) -> None:
         """Remove a task from the schedule."""
+        pass
+
+    def edit_task(self, old_task: Task, new_task: Task) -> None:
+        """Edit an existing task in the schedule."""
+        pass
+
+    def validate_schedule(self) -> bool:
+        """Check if total duration of all tasks fits within available time."""
         pass
 
     def generate_plan(self) -> List[Task]:

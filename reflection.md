@@ -20,8 +20,10 @@ Scheduler - Attributes: tasks, owner, pet, total_minutes; Methods: add_task(), r
 
 **b. Design changes**
 
-- Did your design change during implementation?
+- Did your design change during implementation? Yes
 - If yes, describe at least one change and why you made it.
+
+I forgot to originally include the ability to edit tasks or mark them as a reoccuring event. The AI identified this and then made the edits to the neccessary classes.
 
 ---
 
