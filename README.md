@@ -76,17 +76,27 @@ Not scheduled: 0 minutes
 
 ```bash
 # Run the full test suite:
-pytest
+python -m pytest
 
-# Run with coverage:
-pytest --cov
 ```
+
+The tests cover core scheduling behaviors including task completion toggling, multi-factor sorting correctness (priority → duration → category), recurring task auto-creation for daily/weekly frequencies, time-conflict detection, and edge cases like one-time tasks that don't recur.
 
 Sample test output:
 
 ```
-# Paste your pytest output here
+================================= test session starts ==================================
+platform win32 -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\jazmi\OneDrive\Codepath\Proj 2\ai110-module2show-pawpal-starter
+plugins: anyio-4.14.0
+collected 13 items                                                                      
+
+tests\test_pawpal.py .............                                                [100%]
+
+================================== 13 passed in 0.11s ==================================
 ```
+
+confidence level: 5 stars!
 
 ## 📐 Smarter Scheduling
 
