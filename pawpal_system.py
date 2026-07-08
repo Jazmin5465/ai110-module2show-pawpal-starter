@@ -6,6 +6,7 @@ See diagrams/uml_draft.mmd for the class design.
 
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
+from datetime import date, timedelta
 
 
 @dataclass
@@ -18,6 +19,7 @@ class Task:
     frequency: str = "once"
     start_time: Optional[str] = None
     completed: bool = False
+    due_date: Optional[date] = None
 
     def is_high_priority(self) -> bool:
         """Check if this task has high priority."""
@@ -26,6 +28,21 @@ class Task:
     def estimate_time(self) -> int:
         """Estimate the time needed for this task."""
         return self.duration
+
+    def get_due_date_str(self) -> str:
+        """Return a human-readable due date string."""
+        if not self.due_date:
+            return "No due date"
+        today = date.today()
+        if self.due_date == today:
+            return "Today"
+        elif self.due_date == today + timedelta(days=1):
+            return "Tomorrow"
+        elif self.due_date < today:
+            return f"Overdue ({self.due_date})"
+        else:
+            days_away = (self.due_date - today).days
+            return f"In {days_away} days ({self.due_date})"
 
 
 @dataclass
@@ -91,9 +108,31 @@ class Scheduler:
             pet.tasks[index] = new_task
 
     def mark_complete(self, pet: Pet, task: Task) -> None:
-        """Mark a task as completed."""
+        """Mark a task as completed and auto-create next occurrence if recurring."""
         if pet in self.owner.pets and task in pet.tasks:
             task.completed = True
+
+            # Auto-create next occurrence for daily/weekly tasks
+            if task.frequency in ["daily", "weekly"]:
+                # Determine next occurrence date
+                current_date = task.due_date or date.today()
+                if task.frequency == "daily":
+                    next_date = current_date + timedelta(days=1)
+                else:  # weekly
+                    next_date = current_date + timedelta(weeks=1)
+
+                # Create new task instance for next occurrence
+                next_task = Task(
+                    description=task.description,
+                    duration=task.duration,
+                    priority=task.priority,
+                    category=task.category,
+                    frequency=task.frequency,
+                    start_time=task.start_time,
+                    due_date=next_date,
+                    completed=False
+                )
+                pet.tasks.append(next_task)
 
     def mark_incomplete(self, pet: Pet, task: Task) -> None:
         """Mark a task as incomplete."""
@@ -116,9 +155,17 @@ class Scheduler:
         """Generate a daily plan prioritizing high-priority tasks that fit."""
         all_tasks = self.get_all_tasks()
 
+        # Filter to daily/once-only tasks (skip weekly, monthly, etc.)
+        daily_tasks = [t for t in all_tasks if t.frequency in ["once", "daily"]]
+
+        # Multi-factor sort: priority > duration > category (reduces context switching)
         sorted_tasks = sorted(
-            all_tasks,
-            key=lambda t: (t.priority.lower() != "high", t.duration)
+            daily_tasks,
+            key=lambda t: (
+                t.priority.lower() != "high",  # High priority first
+                t.duration,                     # Shorter tasks first to fill gaps better
+                t.category                      # Group by category
+            )
         )
 
         plan = []
@@ -217,6 +264,31 @@ class Scheduler:
                 assigned_time = self._minutes_to_time(current)
                 result.append((task, assigned_time, task_to_pet[id(task)]))
 
+        # Insert breaks based on owner preference
+        min_breaks = self.owner.preferences.get("min_breaks", 0)
+        if min_breaks > 0 and len(result) > 1:
+            result.sort(key=lambda x: self._time_to_minutes(x[1]))
+            result_with_breaks = []
+            breaks_added = 0
+
+            for i, (task, time_str, pet) in enumerate(result):
+                result_with_breaks.append((task, time_str, pet))
+
+                # Insert break after every 2 tasks if min_breaks not met
+                if (i + 1) % 2 == 0 and breaks_added < min_breaks and i < len(result) - 1:
+                    break_task = Task(
+                        description="Break",
+                        duration=10,
+                        priority="low",
+                        category="break"
+                    )
+                    current_end = self._time_to_minutes(time_str) + task.duration
+                    break_time = self._minutes_to_time(current_end + 5)
+                    result_with_breaks.append((break_task, break_time, None))
+                    breaks_added += 1
+
+            result = result_with_breaks
+
         return result
 
     def format_schedule(self) -> str:
@@ -239,9 +311,12 @@ class Scheduler:
         if scheduled_tasks:
             output.append("SCHEDULED TASKS:")
             for task, time_str, pet in scheduled_tasks:
-                pet_emoji = "🐕" if pet.species in ["Dog", "Golden Retriever", "Labrador"] else "🐱"
-                status = "✓" if task.completed else "○"
-                output.append(f"  {status} {time_str:<5}  {pet_emoji} {pet.name:<12} - {task.description:<22} ({task.duration} min) [{task.priority}]")
+                if pet is None:  # Break task
+                    output.append(f"  ☕ {time_str:<5}  {'':13} - {task.description:<22} ({task.duration} min)")
+                else:
+                    pet_emoji = "🐕" if pet.species in ["Dog", "Golden Retriever", "Labrador"] else "🐱"
+                    status = "✓" if task.completed else "○"
+                    output.append(f"  {status} {time_str:<5}  {pet_emoji} {pet.name:<12} - {task.description:<22} ({task.duration} min) [{task.priority}]")
 
         # Add unscheduled tasks (those that didn't fit in the plan)
         unscheduled = [task for task in all_tasks if task not in plan]

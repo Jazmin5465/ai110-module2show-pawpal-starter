@@ -59,11 +59,19 @@ def main():
         priority="low",
         category="grooming"
     )
+    buddy_nail_trim = Task(
+        description="Nail trim",
+        duration=30,
+        priority="low",
+        category="grooming",
+        frequency="weekly"  # Not included in daily schedule
+    )
 
     scheduler.add_task(buddy, buddy_walk)
     scheduler.add_task(buddy, buddy_feeding)
     scheduler.add_task(buddy, buddy_playtime)
     scheduler.add_task(buddy, buddy_grooming)
+    scheduler.add_task(buddy, buddy_nail_trim)
 
     # Add tasks for Whiskers
     whiskers_feeding = Task(
