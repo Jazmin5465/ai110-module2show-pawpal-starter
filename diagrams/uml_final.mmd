@@ -1,0 +1,62 @@
+classDiagram
+    %% PawPal+ Final System Design
+    %% Updated to reflect actual implementation with recurring tasks, sorting, and conflict detection
+
+    class Owner {
+        +str name
+        +dict availability
+        +dict preferences
+        +list~Pet~ pets
+        +get_day_availability() str
+        +add_pet(pet) void
+        +remove_pet(pet) void
+    }
+
+    class Pet {
+        +str name
+        +str species
+        +int age
+        +list~Task~ tasks
+        +describe() str
+    }
+
+    class Task {
+        +str description
+        +int duration
+        +str priority
+        +str category
+        +str frequency
+        +str start_time (optional)
+        +date due_date (optional)
+        +bool completed
+        +is_high_priority() bool
+        +estimate_time() int
+        +get_due_date_str() str
+    }
+
+    class Scheduler {
+        +Owner owner
+        +int total_minutes
+        +add_task(pet, task) void
+        +remove_task(pet, task) void
+        +edit_task(pet, old_task, new_task) void
+        +mark_complete(pet, task) void
+        +mark_incomplete(pet, task) void
+        +get_all_tasks() list~Task~
+        +validate_schedule() bool
+        +generate_plan() list~Task~
+        +generate_scheduled_plan() list~tuple~
+        +explain_plan() str
+        +format_schedule() str
+        -_time_to_minutes(time_str) int
+        -_minutes_to_time(minutes) int
+    }
+
+    %% Relationships
+    Owner "1" --> "*" Pet : owns
+    Pet "1" --> "*" Task : has
+    Scheduler "1" --> "1" Owner : manages
+    Scheduler "1" --> "*" Task : schedules
+
+    %% Note: Recurring tasks create new Task instances when mark_complete() is called
+    Task --|> Task : auto-creates next occurrence (daily/weekly)
