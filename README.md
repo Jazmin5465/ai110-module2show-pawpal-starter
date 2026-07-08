@@ -90,14 +90,14 @@ Sample test output:
 
 ## 📐 Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
-
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Task sorting | `generate_plan()` | Multi-factor: priority (high first) → duration (short first) → category (grouped) for efficient packing |
+| Filtering | `generate_plan()` | Only includes tasks due today; skips non-daily/weekly tasks; removes tasks that exceed time budget |
+| Conflict handling | Time slot detection in frontend | Detects and displays warning when 2+ tasks are scheduled at same time; shows affected pets and tasks |
+| Recurring tasks | `mark_complete()` | Auto-creates next occurrence: daily tasks recur tomorrow, weekly tasks recur next week; maintains consistency |
+| Break insertion | `generate_scheduled_plan()` | Automatically inserts 10-min breaks after every 2 tasks based on owner preferences (min_breaks) |
+| Time slot assignment | `generate_scheduled_plan()` | Places pre-assigned tasks in fixed slots, then fills remaining gaps with untimed tasks using best-fit strategy |
 
 ## 📸 Demo Walkthrough
 

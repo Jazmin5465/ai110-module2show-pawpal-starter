@@ -32,12 +32,22 @@ I forgot to originally include the ability to edit tasks or mark them as a reocc
 **a. Constraints and priorities**
 
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
+
+The scheduler considers: total available time (hard limit), task priority (high/medium/low), task duration, category grouping, frequency (daily/weekly/once), due date (today only), pre-assigned time slots, and owner preferences (minimum breaks). Owner availability hours also constrain when tasks can be scheduled.
+
 - How did you decide which constraints mattered most?
+
+Priority was ranked first because feeding and health tasks are non-negotiables with time duration second because shorter high-priority tasks fill schedule gaps efficiently. Total available time is a hard ceiling that overrides all other constraints.
 
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
+
+The scheduler prioritizes high-priority short tasks and defers lower-priority longer tasks if time runs out. Another tradeoff includes automatically creating recurring task instances increases task clutter but ensures pet care routines are never forgotten.
+
 - Why is that tradeoff reasonable for this scenario?
+
+For a busy pet owner, completing critical daily tasks (feeding, walks, medications) is more important than one-time maintenance tasks; deferred grooming can be rescheduled but a missed feeding harms the pet. Automatically including reoccuring ensures consistency in pet care even if it requires more task management.
 
 ---
 

@@ -154,9 +154,12 @@ class Scheduler:
     def generate_plan(self) -> List[Task]:
         """Generate a daily plan prioritizing high-priority tasks that fit."""
         all_tasks = self.get_all_tasks()
+        today = date.today()
 
-        # Filter to daily/once-only tasks (skip weekly, monthly, etc.)
-        daily_tasks = [t for t in all_tasks if t.frequency in ["once", "daily"]]
+        # Filter to tasks for today: daily/once frequency AND due today (or no due_date for backward compat)
+        daily_tasks = [t for t in all_tasks
+                      if t.frequency in ["once", "daily"]
+                      and (t.due_date is None or t.due_date == today)]
 
         # Multi-factor sort: priority > duration > category (reduces context switching)
         sorted_tasks = sorted(
@@ -235,7 +238,7 @@ class Scheduler:
         for task in timed_tasks:
             start = self._time_to_minutes(task.start_time)
             occupied.append((start, start + task.duration, task))
-        occupied.sort()
+        occupied.sort(key=lambda x: (x[0], x[1]))
 
         # Result list: keep pre-assigned tasks
         result = [(task, task.start_time, task_to_pet[id(task)]) for task in timed_tasks]
@@ -254,7 +257,7 @@ class Scheduler:
                     assigned_time = self._minutes_to_time(current)
                     result.append((task, assigned_time, task_to_pet[id(task)]))
                     occupied.append((current, current + task.duration, task))
-                    occupied.sort()
+                    occupied.sort(key=lambda x: (x[0], x[1]))
                     assigned = True
                     break
                 current = occ_end
